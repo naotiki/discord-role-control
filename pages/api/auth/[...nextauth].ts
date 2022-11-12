@@ -20,16 +20,24 @@ export const authOptions: NextAuthOptions = {
             authorization: {
                 params: {scope: "identify email guilds bot", permissions: 8, prompt: "none"}
             },
-            profile(prf: User) {
-                console.log("PRF!", prf)
-                return prf
+
+
+            profile(profile: DiscordProfile) {
+                if (profile.avatar === null) {
+                    const defaultAvatarNumber = parseInt(profile.discriminator) % 5
+                    profile.image_url = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarNumber}.png`
+                } else {
+                    const format = profile.avatar.startsWith("a_") ? "gif" : "png"
+                    profile.image_url = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.${format}`
+                }
+                console.log("PRF!", profile)
+                return profile
             }
 
         }),
 // ...add more providers here
     ],
 
-    //session: { strategy: "jwt" },
     callbacks: {
         async jwt({token, account, user, profile}) {
 

@@ -9,10 +9,7 @@ declare module "next-auth" {
     /**
      * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
      */
-    interface User extends DiscordProfile, Profile {
-    }
-
-    interface AdapterUser extends User {
+    interface User extends DiscordProfile {
     }
 
 
