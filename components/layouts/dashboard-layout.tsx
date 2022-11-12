@@ -13,6 +13,7 @@ import {
 import {useSession} from "next-auth/react";
 import DiscordUserInfo from "../discord-user-info";
 import GuildSelector from "../guild-selector";
+import {GetServerSideProps} from "next";
 
 export default function DashboardLayout({children}: PropsWithChildren) {
     const {data: session} = useSession()

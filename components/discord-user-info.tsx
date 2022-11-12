@@ -5,10 +5,10 @@ export default function DiscordUserInfo() {
     if (session) {
         return (
             <>
-                <Tooltip label={`${session.user.name}#${session.user.discordData.discriminator}`}>
+                <Tooltip label={`${session.user.username}#${session.user.discriminator}`}>
                     <HStack>
-                        <Avatar name={session.user.name ?? "名前なんかねえよ"} src={session.user.image!!}></Avatar>
-                        <Text fontSize="xl">{session.user.name}</Text>
+                        <Avatar name={session.user.username ?? "名前なんかねえよ"} src={session.user.image!!}></Avatar>
+                        <Text fontSize="xl">{session.user.username}</Text>
                     </HStack>
                 </Tooltip>
             </>
