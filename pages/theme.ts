@@ -20,10 +20,9 @@ const styles: Styles = {
     }),
 }
 const fonts = {
-    body:"'Inter','Noto Sans JP', sans-serif",
-    heading:"'Inter','Noto Sans JP', sans-serif",
+    body: "'Inter','Noto Sans JP', sans-serif",
+    heading: "'Inter','Noto Sans JP', sans-serif",
     mono: "Menlo, monospace",
 }
 // 3. extend the theme
-const theme = extendTheme({config, styles,fonts})
-export default theme
+export const theme = extendTheme({config, styles, fonts})
