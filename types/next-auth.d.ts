@@ -6,13 +6,14 @@ import {RESTPostOAuth2AccessTokenWithBotAndGuildsScopeResult} from "discord-api-
 import {Profile} from "next-auth/core/types";
 
 declare module "next-auth" {
+
+    interface User extends DiscordProfile {
+        discordId: string
+    }
+
     /**
      * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
      */
-    interface User extends DiscordProfile {
-    }
-
-
     interface Session {
         user: User,
         discord: DiscordSession
