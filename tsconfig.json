@@ -14,8 +14,20 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "typeRoots": ["types","node_modules/@types"]
+    "typeRoots": [
+      "types",
+      "node_modules/@types"
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "@/*": [
+        "*"
+      ]
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "role-manager-bot"
+  ]
 }
