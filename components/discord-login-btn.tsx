@@ -14,8 +14,8 @@ export default function DiscordLoginBtn() {
     }
     return (
         <>
-            Not signed in <br />
-            <Button onClick={() => signIn("discord")} leftIcon={<FaDiscord/>}>
+            Not signed in <br/>
+            <Button onClick={() => signIn("discord", {callbackUrl: "/dashboard"})} leftIcon={<FaDiscord/>}>
                 Discordでログイン
             </Button>
         </>
