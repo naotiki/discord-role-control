@@ -5,7 +5,8 @@ import {theme} from '../styles/theme'
 export default function Document() {
     return (
         <Html lang='ja'>
-            <Head />
+            <Head>
+            </Head>
             <body>
             {/* 👇 Here's the script */}
             <ColorModeScript initialColorMode={theme.config.initialColorMode}/>

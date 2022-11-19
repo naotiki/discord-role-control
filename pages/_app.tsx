@@ -17,13 +17,13 @@ type AppPropsWithLayout = AppProps & {
 function MyApp({Component, pageProps: {session, ...pageProps}}: AppPropsWithLayout) {
     const getLayout = Component.getLayout ?? ((page) => page)
     return (
-        <RecoilRoot>
-            <SessionProvider session={session}>
-                <ChakraProvider theme={theme}>
-                    {getLayout(<Component {...pageProps} />)}
-                </ChakraProvider>
-            </SessionProvider>
-        </RecoilRoot>
+       <RecoilRoot>
+           <SessionProvider session={session}>
+               <ChakraProvider theme={theme}>
+                   {getLayout(<Component {...pageProps} />)}
+               </ChakraProvider>
+           </SessionProvider>
+       </RecoilRoot>
     )
 
 }

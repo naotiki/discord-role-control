@@ -4,6 +4,7 @@ import styles from '../styles/Home.module.css'
 import {Box, Heading, SimpleGrid, Spacer, Text} from "@chakra-ui/react";
 import DiscordLoginBtn from "../components/discord-login-btn";
 import DiscordUserInfo from "../components/discord-user-info";
+import Link from "next/link";
 
 export default function Home() {
     return (
@@ -43,10 +44,10 @@ export default function Home() {
                         "color": "#0070f3",
                         "border-color": "#0070f3",
                     }}>
-                        <a href="#">
-                            <Text fontSize="2xl">準備中 &rarr;</Text>
-                            <Text>Coming soon...</Text>
-                        </a>
+                        <Link href="/dashboard">
+                            <Text fontSize="2xl">管理画面 &rarr;</Text>
+                            <Text>いざ管理</Text>
+                        </Link>
 
                     </Box>
                     <Box border="1px" borderRadius="md" p="1.5rem" _hover={{
