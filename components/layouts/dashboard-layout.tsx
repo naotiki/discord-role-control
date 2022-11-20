@@ -33,6 +33,10 @@ import {useRouter} from "next/router";
 import {mockSession} from "next-auth/client/__tests__/helpers/mocks";
 import user = mockSession.user;
 import * as Path from "path";
+import axios from "axios";
+import {useAsyncEffect} from "@/lib/hooks";
+import {APIGuild} from "discord.js";
+import {FullGuild} from "@/pages/api/discord/fullGuild";
 
 export enum Pages {
     Overview = "/",
@@ -47,9 +51,15 @@ export default function DashboardLayout({children,}: PropsWithChildren) {
     const userGuild = useRecoilValueLoadable(userGuildState)
     const [selectedGuild, setSelectedGuild] = useRecoilState(selectedGuildState)
     const router = useRouter()
-    useEffect(() => {
-        if (userGuild.state == "hasValue") {
-            setSelectedGuild(userGuild.contents.find(g => g.id == router.query.guildId) ?? null)
+    useAsyncEffect(async () => {
+        if (userGuild.state == "hasValue" && router.query.guildId) {
+            const guild: FullGuild | undefined = (await axios.get("/api/discord/fullGuild", {
+                params: {
+                    guildId: router.query.guildId
+                }, withCredentials: true
+            })).data as FullGuild | undefined
+
+            setSelectedGuild(guild ?? null)
         } else {
             setSelectedGuild(null)
         }

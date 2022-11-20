@@ -5,22 +5,15 @@ import dbConst, {AppDB, UserGuilds} from "@/lib/db";
 import axios from "axios";
 import {APIPartialGuild, Routes} from "discord-api-types/v10";
 import {ObjectId} from "mongodb";
+import {discordGuard} from "@/lib/apiUtils";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const session = await unstable_getServerSession(req, res, authOptions)
-
-    if (!session?.user) {
-        res.status(401).json({message: "You must be logged in."});
-        return
-    }
     const appDB = await AppDB.getInstance()
+    const [session, accessToken] = await discordGuard(req, res, appDB)
+    if (!session || !accessToken) return
+
     const oid = new ObjectId(session.user.id)
-    const accessToken = await appDB.getAccessToken(oid)
-    if (!accessToken) {
-        res.status(401).json({message: "トークンが無効"});
-        return
-    }
-    console.log("\n", accessToken, "\n")
+
     const userGuilds = (await axios.get<APIPartialGuild[]>("https://discord.com/api/v10" + Routes.userGuilds(), {
         headers: {
             Authorization: `Bearer ${accessToken}`

@@ -1,6 +1,8 @@
 import {atom, selector} from "recoil";
 import {APIPartialGuild} from "discord-api-types/v10";
 import axios from "axios";
+import {APIGuild} from "discord.js";
+import {FullGuild} from "@/pages/api/discord/fullGuild";
 
 export const userGuildState = atom({
     key: "userGuilds",
@@ -13,13 +15,7 @@ export const userGuildState = atom({
         },
     })
 });
-export const selectedGuildState = atom<APIPartialGuild | null>({
+export const selectedGuildState = atom<FullGuild | null>({
     key: "selectedGuild",
     default: null
-})
-selector({
-    key: "selectedGuildSelector",
-    get: async ({get}) => {
-
-    },
 })

@@ -1,18 +1,23 @@
 import {NextPageWithLayout} from "@/pages/_app";
-import {ReactElement, useState} from "react";
-import DashboardLayout, {Pages} from "@/components/layouts/dashboard-layout";
-import {useRecoilState, useRecoilValueLoadable} from "recoil";
-import {selectedGuildState, userGuildState} from "@/components/recoil/atoms";
+import {ReactElement, useEffect} from "react";
+import DashboardLayout from "@/components/layouts/dashboard-layout";
+import {useRecoilState} from "recoil";
+import {selectedGuildState} from "@/components/recoil/atoms";
 import {useRouter} from "next/router";
-import {redirect} from "next/navigation";
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from "@chakra-ui/tabs";
+import {Table, TableContainer, Tbody, Td, Thead, Tr} from "@chakra-ui/react";
 
 const Tests: NextPageWithLayout = () => {
-    const userGuild = useRecoilValueLoadable(userGuildState)
     const router = useRouter()
-    if (userGuild.state != "hasValue") return <></>
-    const guild = userGuild.contents.find(g => g.id == router.query.guildId)
-    if (!guild) router.push('/dashboard')
+    const [selectedGuild, setSelectedGuild] = useRecoilState(selectedGuildState)
+    useEffect(() => {
+        if (!selectedGuild) {
+            router.push('/dashboard')
+        }
+    }, [selectedGuild])
+    if (!selectedGuild) {
+        return <></>
+    }
     return <>
         <Tabs isFitted defaultIndex={1}>
             <TabList>
@@ -24,7 +29,31 @@ const Tests: NextPageWithLayout = () => {
 
                 </TabPanel>
                 <TabPanel>
+                    <TableContainer>
+                        <Table><Thead>
+                            <Tr>
+                                <th>名前</th>
+                                <th>カテゴリ</th>
+                                <th></th>
+                            </Tr>
+                        </Thead>
+                            <Tbody>
+                                {selectedGuild.categories.map(c => {
+                                    if (!c.id) {
+                                        return <> {c.children.map(chan => <Tr
+                                            bgColor={"blue"}><Td>{chan.name}</Td><Td></Td><Td></Td></Tr>)}</>
+                                    }
 
+
+                                    return (<>
+                                        <Tr bgColor={"grey"}>
+                                            <Td>{c.name}</Td><Td>{c.id}</Td><Td></Td>
+                                        </Tr>
+                                        {c.children.map(chan => <Tr><Td>{chan.name}</Td><Td></Td><Td></Td></Tr>)}
+                                    </>)
+                                })}
+                            </Tbody></Table>
+                    </TableContainer>
                 </TabPanel>
             </TabPanels>
         </Tabs>

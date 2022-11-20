@@ -19,12 +19,15 @@ import {
 } from "@chakra-ui/react";
 import {CopyIcon} from "@chakra-ui/icons";
 import Link from "next/link";
+import {useRouter} from "next/router";
 
 const Dashboard: NextPageWithLayout = () => {
     const userGuild = useRecoilValueLoadable(userGuildState)
     const [selectedGuild] = useRecoilState(selectedGuildState)
+    const router = useRouter()
     if (selectedGuild) {
-        return <p>a</p>
+        router.push("/dashboard/" + selectedGuild.id)
+        return <></>
     } else if (userGuild.state == "hasValue") {
         return <>
             <Text fontSize="xl">

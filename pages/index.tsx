@@ -17,8 +17,8 @@ export default function Home() {
 
             <main className={styles.main}>
                 <Heading size="xl">
-                    Discord Role Easy Assist and Management System
-                    <div style={{textAlign:"center"}}>DREAM System</div>
+                    ろーるかんりくん
+                    <Text size="lg" style={{textAlign: "center"}}>ver.{Number.MIN_VALUE}</Text>
 
                 </Heading>
                 <Text fontSize="xl">
