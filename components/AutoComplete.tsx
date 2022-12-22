@@ -1,17 +1,22 @@
 import {Box, Input, StackDivider, VStack} from "@chakra-ui/react";
 import React, {ChangeEvent, FocusEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState} from "react";
+import {retry} from "@aws-sdk/credential-provider-imds/dist-types/remoteProvider/retry";
 
-interface AutoCompleteProps {
+type AutoCompleteElement<T> = {
+    text: string
+    value?: T
+}
+
+interface AutoCompleteProps<T> {
     /**
      * 候補リスト
      * */
-    candidacy?: string[]
+    candidacy?: AutoCompleteElement<T>[]
 
-    onSelected?: (selected: string, index: number) => void
-
+    onSelected?: (selected: AutoCompleteElement<T>, index: number, array: AutoCompleteElement<T>[] | undefined) => void
 }
 
-export default function AutoComplete({candidacy = [], onSelected}: AutoCompleteProps) {
+export default function AutoComplete<T>({candidacy = [], onSelected}: AutoCompleteProps<T>) {
     const [text, setText] = useState('')
     const [focus, setFocus] = useState<number | null>(null)
     const [showBox, setShowBox] = useState(false)
@@ -22,14 +27,16 @@ export default function AutoComplete({candidacy = [], onSelected}: AutoCompleteP
         }
         setText(event.target.value)
     }
+
     const list = useMemo(() => {
-        return candidacy.map((str, index) => {
+        return candidacy.map((e, index) => {
+
             return {
-                value: str,
+                ...e,
                 index: index
             }
-        }).filter((str, index) => {
-            return str.value.toLowerCase().startsWith(text.toLowerCase())
+        }).filter((ele) => {
+            return ele.text.toLowerCase().startsWith(text.toLowerCase())
         })
     }, [text])
     useEffect(() => {
@@ -64,7 +71,7 @@ export default function AutoComplete({candidacy = [], onSelected}: AutoCompleteP
             case "Enter": {
                 event.preventDefault()
                 if (onSelected && focus != null && focus < list.length) {
-                    onSelected(list[focus].value, list[focus].index)
+                    onSelected(list[focus], list[focus].index, candidacy)
                     setShowBox(false)
                 }
                 break
@@ -79,7 +86,7 @@ export default function AutoComplete({candidacy = [], onSelected}: AutoCompleteP
                 break
             }
         }
-    }, [focus, showBox, onSelected, list])
+    }, [focus, showBox, onSelected, list, candidacy])
     return <Box pos={"relative"} onFocus={() => {
         handleFocus(true)
     }} onBlur={() => {
@@ -98,7 +105,7 @@ export default function AutoComplete({candidacy = [], onSelected}: AutoCompleteP
             <VStack spacing={0} divider={<StackDivider></StackDivider>} align={"stretch"}>
                 {list.length != 0 ?
                     list.map((s, i) => <Box padding={2}
-                                            bgColor={i == focus ? "gray.400" : undefined}>{s.value}</Box>) : (
+                                            bgColor={i == focus ? "gray.400" : undefined}>{s.text}</Box>) : (
                         <Box padding={2}>見つかりません</Box>)}
             </VStack>
         </Box></Box>
