@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const [session, accessToken] = await discordGuard(req, res, appDB)
     if (!session || !accessToken) return
     console.log("\n", accessToken, "\n")
-    const oid = new ObjectId(session.user.id)
+    const oid = new ObjectId(session.user!!.id)
     const registeredGuilds = await appDB.db.collection(dbConst.collections.UserGuilds).findOne<UserGuilds>({
         _id: oid
     })
@@ -33,17 +33,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 
     const rootChannel = {
-        children: channels.filter(c => !c.parent_id && ![ChannelType.GuildCategory, ChannelType.PublicThread, ChannelType.PrivateThread, ChannelType.AnnouncementThread].includes(c.type))
-    } as TYPE
+        position: -1,
+        children: channels.filter(c => !c.parent_id && ![ChannelType.GuildCategory, ChannelType.PublicThread, ChannelType.PrivateThread, ChannelType.AnnouncementThread].includes(c.type)).sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+    } as Categories
 
 
-    const list: TYPE[] = channels.filter(c => c.type == ChannelType.GuildCategory).map(c => {
+    const list: Categories[] = channels.filter(c => c.type == ChannelType.GuildCategory).map(c => {
         return {
             ...c,
-            children: channels.filter(kid => kid.parent_id == c.id && kid.type != ChannelType.GuildCategory)
-        } as TYPE
-    }).concat(rootChannel)
+            children: channels.filter(kid => kid.parent_id == c.id && kid.type != ChannelType.GuildCategory).sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+        } as Categories
+    }).concat(rootChannel).sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+    /*const list: RootChannels[] = []
+    channels.filter(c => ![
+        ChannelType.PublicThread,
+        ChannelType.PrivateThread,
+        ChannelType.AnnouncementThread
+    ].includes(c.type)).forEach(c => {
+        if (c.type == ChannelType.GuildCategory) {
+            list.push({
+                ...c,
+                children: channels.filter(kid => kid.parent_id == c.id && kid.type != ChannelType.GuildCategory)
+            } as RootChannels)
+        } else if (!c.parent_id) {
+            list.push(c as RootChannels)
+        }
 
+    })
+    //list= list.sort((a, b) => (a.position ?? 0) - (b.position ?? 0))*/
 
     res.status(200).json({
         ...fullGuild.data,
@@ -51,10 +68,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } as FullGuild)
 }
 type Channel = Exclude<ChannelType, ChannelType.GuildCategory | ChannelType.PublicThread | ChannelType.PrivateThread | ChannelType.AnnouncementThread>
-type TYPE =
+export type Categories =
     {
         children: APIGuildChannel<Channel>[]
     } & APIGuildCategoryChannel
 export type FullGuild = {
-    categories: TYPE[]
+    categories: Categories[]
 } & APIGuild

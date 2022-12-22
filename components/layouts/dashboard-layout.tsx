@@ -1,23 +1,15 @@
-import React, {
-    ComponentType,
-    PropsWithChildren,
-    ReactComponentElement,
-    ReactElement,
-    ReactNode, useCallback,
-    useEffect,
-    useState
-} from "react";
+import React, {PropsWithChildren, ReactElement, useCallback} from "react";
 import {
     Accordion,
     AccordionButton,
     AccordionIcon,
     AccordionItem,
     AccordionPanel,
-    Box,
+    Box, Divider,
     Flex,
     Grid,
     GridItem,
-    Heading,
+    Heading, HStack,
     Spacer,
     StackDivider,
     VStack
@@ -28,14 +20,11 @@ import GuildSelector from "../guild-selector";
 import {useRecoilState, useRecoilValueLoadable} from "recoil";
 import {selectedGuildState, userGuildState} from "@/components/recoil/atoms";
 import Link from "next/link";
-import Dashboard from "@/pages/dashboard";
 import {useRouter} from "next/router";
 import {mockSession} from "next-auth/client/__tests__/helpers/mocks";
-import user = mockSession.user;
 import * as Path from "path";
 import axios from "axios";
 import {useAsyncEffect} from "@/lib/hooks";
-import {APIGuild} from "discord.js";
 import {FullGuild} from "@/pages/api/discord/fullGuild";
 
 export enum Pages {
@@ -58,12 +47,13 @@ export default function DashboardLayout({children,}: PropsWithChildren) {
                     guildId: router.query.guildId
                 }, withCredentials: true
             })).data as FullGuild | undefined
-
-            setSelectedGuild(guild ?? null)
-        } else {
-            setSelectedGuild(null)
+            if (guild) {
+                setSelectedGuild(guild)
+                return
+            }
         }
-
+        setSelectedGuild(null)
+        if (userGuild.state == "hasError") await router.push('/dashboard')
     }, [userGuild.state, router.query.guildId])
     const createDashboardRoute = useCallback((path: string) => {
         if (!selectedGuild) return "/dashboard"
@@ -106,7 +96,8 @@ export default function DashboardLayout({children,}: PropsWithChildren) {
                             <AccordionIcon/>
                         </AccordionButton>
                     </h2>
-                    <AccordionPanel pb={4}>
+                    <AccordionPanel pb={4} pl={30}>
+
                         <VStack
                             divider={<StackDivider borderColor='gray.200'/>}
                             align='stretch'

@@ -26,7 +26,6 @@ const Dashboard: NextPageWithLayout = () => {
     const [selectedGuild] = useRecoilState(selectedGuildState)
     const router = useRouter()
     if (selectedGuild) {
-        router.push("/dashboard/" + selectedGuild.id)
         return <></>
     } else if (userGuild.state == "hasValue") {
         return <>
