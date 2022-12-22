@@ -1,4 +1,4 @@
-import {Account, DefaultSession, DefaultUser} from "next-auth"
+import {Account, DefaultSession, DefaultUser, User} from "next-auth"
 import {RawGuildData, RawUserData} from "discord.js/typings/rawDataTypes";
 import {APIPartialGuild, APIUser} from "discord-api-types/v10";
 import {DiscordProfile} from "next-auth/providers/discord";
@@ -28,5 +28,8 @@ declare module "next-auth/jwt" {
         /** OpenID ID Token */
         accessToken?: string,
         tokenType?: string,
+        expiresAt?: number,
+        refreshToken?: string
+        user?: User
     }
 }

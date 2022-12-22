@@ -6,9 +6,15 @@ import clientPromise from "@/lib/mongodb";
 import dbConst, {UserGuilds, UserSummery} from "@/lib/db";
 import {ObjectId} from "mongodb";
 import pick from "@/utils/pick";
-import {APIGuild} from "discord.js";
+import {JWT} from "next-auth/jwt";
+import axios from "axios";
+import {TokenEndpointHandler} from "next-auth/providers";
+import {TokenSetParameters} from "openid-client";
 
 export const authOptions: NextAuthOptions = {
+    session: {
+        strategy: "jwt",
+    },
     adapter: MongoDBAdapter(clientPromise, dbConst),
     providers: [
         Discord({
@@ -60,26 +66,63 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async signIn({account, user}) {
             const discordAccount = account as DiscordAccount | null
+
             if (!discordAccount?.guild) return false
             return true;
         },
         async session({session, token, user}) {
-            session.user = user as User;
+
+            if (Date.parse(session.expires) < Date.now()) {
+            }
+
+            session.user = token.user as User
             return session
         },
-        /*async jwt({token, account, user, profile}) {
+        async jwt({token, account, user, profile}): Promise<JWT> {
 
 
             // Persist the OAuth access_token to the token right after signin
-            if (account) {
-                console.log(account)
-                token.accessToken = account.access_token;
-                token.tokenType = account.token_type;
+            if (account && user) {
+                console.debug("Create Token")
+                return {
+                    user: user,
+                    accessToken: account.access_token,
+                    tokenType: account.token_type,
+                    refreshToken: account.refresh_token,
+                    expiresAt: account.expires_at,
+                }
 
             }
 
-            return token
-        },*/
+            // Return previous token if the access token has not expired yet
+            if (Date.now() < (token?.expiresAt ?? 0) * 1000) {
+                console.debug(`Token available (expires at: ${token.expiresAt})`);
+                return token;
+            }
+
+            return await refreshAccessToken(token)
+        }
     }
 }
+
 export default NextAuth(authOptions)
+
+async function refreshAccessToken(token: JWT): Promise<JWT> {
+    console.debug("Refresh Token")
+    const result = await axios.post("https://discord.com/api/v10/oauth2/token", {
+        'client_id': process.env.DISCORD_CLIENT_ID!!,
+        'client_secret': process.env.DISCORD_CLIENT_SECRET!!,
+        'grant_type': 'refresh_token',
+        'refresh_token': token.refreshToken
+    }, {
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    })
+    const tokenResult = result.data as TokenSetParameters
+    return {
+        ...token,
+        accessToken: tokenResult.access_token,
+        expiresAt: tokenResult.expires_at,
+        tokenType: tokenResult.token_type,
+        refreshToken: tokenResult.refresh_token
+    }
+}
